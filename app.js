@@ -197,10 +197,19 @@ function makePreviousSample() {
 function gateEnabled(url) { return typeof url === "string" && url.trim() !== ""; }
 function isEmail(x) { x = String(x == null ? "" : x).trim(); return x.length <= 200 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(x); }
 // the ONLY thing ever sent: never add audit results here
-function buildSignup(email, name, company) {
+function normEmail(x) { return String(x == null ? "" : x).trim().toLowerCase(); }
+function buildSignup(email, name, company, source) {
   var c = function (v) { return String(v == null ? "" : v).trim().slice(0, 200); };
-  return { email: c(email), name: c(name), company: c(company), consent: true, source: "download" };
+  return { email: normEmail(email).slice(0, 200), name: c(name), company: c(company), consent: true, source: source || "download" };
 }
+// stores: storage-like objects (localStorage, sessionStorage); any that throws is skipped. mem: in-page fallback flag.
+function hasSignedUp(stores, mem) {
+  if (mem) return true;
+  return stores.some(function (st) {
+    try { return !!st.getItem("wa_signup_email") || st.getItem("wa_signup_done") === "1"; } catch (e) { return false; }
+  });
+}
+function shouldGate(url, signedUp) { return gateEnabled(url) && !signedUp; }
 
 /* ---------- Team: add files + aggregate (pure, also used in Node tests) ---------- */
 
@@ -294,7 +303,7 @@ var EXAMPLE_TEAM = [
     "Requests that arrive complete.", "Approving something over budget by mistake.")
 ];
 
-if (typeof module !== "undefined" && module.exports) module.exports = { parseResults: parseResults, validate: validate, slug: slug, LENSES: LENSES, LENS_KEYS: LENS_KEYS, addResult: addResult, aggregateTeam: aggregateTeam, EXAMPLE_TEAM: EXAMPLE_TEAM, CREDITS: CREDITS, compareResults: compareResults, sameWorkflow: sameWorkflow, makePreviousSample: makePreviousSample, gateEnabled: gateEnabled, isEmail: isEmail, buildSignup: buildSignup, SIGNUP_URL: SIGNUP_URL };
+if (typeof module !== "undefined" && module.exports) module.exports = { parseResults: parseResults, validate: validate, slug: slug, LENSES: LENSES, LENS_KEYS: LENS_KEYS, addResult: addResult, aggregateTeam: aggregateTeam, EXAMPLE_TEAM: EXAMPLE_TEAM, CREDITS: CREDITS, compareResults: compareResults, sameWorkflow: sameWorkflow, makePreviousSample: makePreviousSample, gateEnabled: gateEnabled, isEmail: isEmail, buildSignup: buildSignup, normEmail: normEmail, hasSignedUp: hasSignedUp, shouldGate: shouldGate, SIGNUP_URL: SIGNUP_URL };
 
 /* Example data, embedded so it works on file:// */
 var SAMPLE = {
@@ -983,8 +992,23 @@ if (typeof document !== "undefined") (function () {
 
 
   /* ----- email gate on download (off until SIGNUP_URL is set) ----- */
-  function signedUp() { return safe(function () { return localStorage.getItem("wa_signup_done") === "1"; }); }
-  function requestDownload() { if (!gateEnabled(SIGNUP_URL) || signedUp()) download(); else openGate(); }
+  var memSignup = false; // last resort if both localStorage and sessionStorage are unavailable
+  function signedUp() {
+    var stores = []; safe(function () { stores.push(localStorage); }); safe(function () { stores.push(sessionStorage); });
+    return hasSignedUp(stores, memSignup);
+  }
+  function rememberSignup(email) {
+    memSignup = true;
+    var e = normEmail(email);
+    try { localStorage.setItem("wa_signup_email", e); } catch (err) { safe(function () { sessionStorage.setItem("wa_signup_email", e); }); }
+  }
+  // run() = the action the person wanted (download file or print). source goes to the sheet.
+  function requestAction(source, run) { if (shouldGate(SIGNUP_URL, signedUp())) openGate(source, run); else run(); }
+  var GATE_TEXT = {
+    download: ["Download your results", "Download", "Enter your email to get the file."],
+    pdf: ["Save your results as PDF", "Save as PDF", "Enter your email to save the PDF."],
+    team_pdf: ["Save your results as PDF", "Save as PDF", "Enter your email to save the PDF."]
+  };
 
   function sendSignup(payload) { // best effort: never wait more than 3 s
     var t, timeout = new Promise(function (res) { t = setTimeout(function () { res(false); }, 3000); }), req;
@@ -995,8 +1019,8 @@ if (typeof document !== "undefined") (function () {
     return Promise.race([req, timeout]).then(function (ok) { clearTimeout(t); return ok; });
   }
 
-  function openGate() {
-    var back = document.activeElement;
+  function openGate(source, run) {
+    var back = document.activeElement, T = GATE_TEXT[source] || GATE_TEXT.download;
     function field(id, label, type, auto, extra) {
       var input = h("input", Object.assign({ id: id, type: type, autocomplete: auto }, extra || {}));
       return { input: input, node: h("div", { class: "field" }, [h("label", { for: id, text: label }), input, h("p", { class: "field-err", id: id + "-err", role: "alert" })]) };
@@ -1007,13 +1031,13 @@ if (typeof document !== "undefined") (function () {
     var consent = h("input", { type: "checkbox", id: "g-consent", "aria-describedby": "g-consent-err" });
     var consentErr = h("p", { class: "field-err", id: "g-consent-err", role: "alert" });
     var emailErr = $("#g-email-err", fe.node);
-    var go = h("button", { type: "submit", class: "btn pri", text: "Download" });
+    var go = h("button", { type: "submit", class: "btn pri", text: T[1] });
     var cancel = h("button", { type: "button", class: "btn", text: "Cancel" });
     var form = h("form", { novalidate: "" }, [
-      h("h2", { id: "g-title", text: "Download your results" }),
-      h("p", { class: "sub", text: "Enter your email to get the file. Your audit results are never sent anywhere." }),
+      h("h2", { id: "g-title", text: T[0] }),
+      h("p", { class: "sub", text: T[2] + " Your audit results are never sent anywhere." }),
       fe.node, fn.node, fc.node,
-      h("label", { class: "consent", for: "g-consent" }, [consent, h("span", { text: "I agree to be contacted by Loon, Ally and Valerie about workshops and training. I can ask to be removed anytime at heyvalerielim@gmail.com." })]),
+      h("label", { class: "consent", for: "g-consent" }, [consent, h("span", { text: "I agree to be contacted by Valerie about workshops and training. I can ask to be removed anytime at heyvalerielim@gmail.com." })]),
       consentErr,
       h("div", { class: "row-actions" }, [go, cancel])]);
     var dlg = h("dialog", { class: "gate", "aria-labelledby": "g-title" }, [form]);
@@ -1028,10 +1052,10 @@ if (typeof document !== "undefined") (function () {
       consentErr.textContent = okC ? "" : "Tick the box to continue";
       fe.input.setAttribute("aria-invalid", String(!okE)); consent.setAttribute("aria-invalid", String(!okC));
       if (!okE || !okC) { (okE ? consent : fe.input).focus(); return; }
-      go.disabled = cancel.disabled = true; go.textContent = "Downloading";
-      sendSignup(buildSignup(fe.input.value, fn.input.value, fc.input.value)).then(function (sent) {
-        if (sent) safe(function () { localStorage.setItem("wa_signup_done", "1"); });
-        closeGate(); download();
+      go.disabled = cancel.disabled = true; go.textContent = "One moment";
+      sendSignup(buildSignup(fe.input.value, fn.input.value, fc.input.value, source)).then(function (sent) {
+        if (sent) rememberSignup(fe.input.value);
+        closeGate(); run();
       });
     };
     dlg.showModal(); fe.input.focus();
@@ -1040,7 +1064,7 @@ if (typeof document !== "undefined") (function () {
   // new privacy wording + expandable notice, only when the gate is on
   if (gateEnabled(SIGNUP_URL)) {
     var NOTICE = [["What we collect", "your email, and your name and company if you give them, when you download your results."],
-      ["Why", "to contact you about workshops and training from Loon, Ally and Valerie."],
+      ["Why", "to contact you about workshops and training from Valerie."],
       ["What we never collect", "your audit answers or results; they stay on your device."],
       ["How long", "until you ask us to remove it."],
       ["To be removed or to see what we hold", "email heyvalerielim@gmail.com."]];
@@ -1061,7 +1085,7 @@ if (typeof document !== "undefined") (function () {
   document.addEventListener("click", function (e) {
     var b = e.target.closest("[data-act]"); if (!b) return;
     var act = b.dataset.act;
-    if (act === "dl" && R) requestDownload(); else if (act === "compare" && R) openCmpPanel(); else if (act === "pdf") window.print(); else if (act === "theme") toggleTheme();
+    if (act === "dl" && R) requestAction("download", download); else if (act === "compare" && R) openCmpPanel(); else if (act === "pdf") requestAction(b.closest("#team") ? "team_pdf" : "pdf", function () { window.print(); }); else if (act === "theme") toggleTheme();
   });
   var wasOpen = [];
   window.addEventListener("beforeprint", function () {

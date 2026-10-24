@@ -1,6 +1,6 @@
 // Run: node tests/signup.test.js
 const assert = require("assert");
-const { isEmail, buildSignup, gateEnabled, SIGNUP_URL } = require("../app.js");
+const { isEmail, buildSignup, gateEnabled, normEmail, hasSignedUp, shouldGate, SIGNUP_URL } = require("../app.js");
 
 // email validation
 ["a@b.co", " first.last@company.com ", "x+tag@sub.example.org"].forEach((e) => assert.ok(isEmail(e), e));
@@ -24,5 +24,26 @@ assert.strictEqual(gateEnabled(undefined), false);
 assert.strictEqual(gateEnabled("https://script.google.com/macros/s/abc/exec"), true);
 // committed config: either off, or a deployed Apps Script web app URL
 assert.ok(SIGNUP_URL === "" || /^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(SIGNUP_URL), "SIGNUP_URL must be empty or an Apps Script /exec URL");
+
+// email normalisation, source passthrough
+assert.strictEqual(normEmail("  Me@Example.COM "), "me@example.com");
+assert.strictEqual(buildSignup(" Me@X.com ", "", "").email, "me@x.com");
+assert.strictEqual(buildSignup("a@b.co", "", "", "pdf").source, "pdf");
+assert.strictEqual(buildSignup("a@b.co", "", "", "team_pdf").source, "team_pdf");
+assert.strictEqual(buildSignup("a@b.co").source, "download");
+
+// already signed up -> skip the gate, for either action
+const store = (o) => ({ getItem: (k) => (k in o ? o[k] : null) });
+const throwing = { getItem() { throw new Error("blocked"); } };
+assert.strictEqual(hasSignedUp([store({})], false), false);
+assert.strictEqual(hasSignedUp([store({ wa_signup_email: "a@b.co" })], false), true);
+assert.strictEqual(hasSignedUp([store({ wa_signup_done: "1" })], false), true); // old key still honoured
+assert.strictEqual(hasSignedUp([throwing, store({ wa_signup_email: "a@b.co" })], false), true); // fallback store
+assert.strictEqual(hasSignedUp([throwing, throwing], false), false);
+assert.strictEqual(hasSignedUp([throwing], true), true); // in-memory flag
+const live = "https://script.google.com/macros/s/x/exec";
+assert.strictEqual(shouldGate(live, false), true);
+assert.strictEqual(shouldGate(live, true), false);
+assert.strictEqual(shouldGate("", false), false);
 
 console.log("signup tests passed");
