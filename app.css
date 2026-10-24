@@ -121,6 +121,7 @@ footer{margin-top:24px;color:var(--ink3);font-size:12px;display:flex;gap:16px;ju
 footer .acts{display:flex;gap:8px}
 footer .helper{width:100%}
 .empty{color:var(--ink3);padding:12px 0}
+@media (max-width:1180px){.c-radar,.c-map,.c-tl,.c-tr{grid-column:span 12}}
 @media (max-width:1000px){.kpi{grid-column:span 6}.c-radar,.c-map,.c-tl,.c-tr{grid-column:span 12}.plan{grid-template-columns:1fr}}
 @media (max-width:760px){
   .app{display:block;overflow-x:clip}

@@ -821,10 +821,10 @@ if (typeof document !== "undefined") (function () {
     var ink2 = css("--ink2"), grid = css("--grid"), acc = css("--accent");
     chart = new Chart(cv, {
       type: "radar",
-      data: { labels: LENS_KEYS.map(function (k) { return wrap(LENSES[k], 16); }), datasets: (cmp ? [{ label: "Previous", data: LENS_KEYS.map(function (k) { return prev.friction[k]; }),
+      data: { labels: LENS_KEYS.map(function (k) { return wrap(LENSES[k], 14); }), datasets: (cmp ? [{ label: "Previous", data: LENS_KEYS.map(function (k) { return prev.friction[k]; }),
         borderColor: css("--ink3"), backgroundColor: "transparent", borderDash: [6, 4], pointBackgroundColor: css("--ink3"), pointBorderColor: css("--card"), borderWidth: 2, pointRadius: 3 }] : []).concat([{ label: "Now", data: LENS_KEYS.map(function (k) { return R.friction[k]; }),
         borderColor: acc, backgroundColor: acc + "33", pointBackgroundColor: acc, pointBorderColor: css("--card"), borderWidth: 2, pointRadius: 3.5 }]) },
-      options: { maintainAspectRatio: false, layout: { padding: 8 }, animation: { duration: 700 },
+      options: { maintainAspectRatio: false, layout: { padding: { top: 10, bottom: 10, left: 18, right: 18 } }, animation: { duration: 700 },
         scales: { r: { min: 0, max: 3, ticks: { stepSize: 1, color: ink2, backdropColor: "transparent", font: { family: "Inter, system-ui, sans-serif", size: 10 } },
           grid: { color: grid }, angleLines: { color: grid }, pointLabels: { color: ink2, font: { family: "Inter, system-ui, sans-serif", size: 11 } } } },
         plugins: { legend: { display: false } } }
