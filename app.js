@@ -5,7 +5,7 @@
 const CREDITS = [ // names get added here; set url to link a name
   { name: "Loon", url: "https://www.linkedin.com/in/chinloonseng/" },
   { name: "Ally", url: "https://www.linkedin.com/in/allyyeo/" },
-  { name: "Valerie", url: null }
+  { name: "Valerie", url: "https://www.linkedin.com/in/limshuen" }
 ];
 
 var LENSES = {
