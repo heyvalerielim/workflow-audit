@@ -2,7 +2,11 @@
    Part 1 is pure (parse + validate) and also runs in Node for tests. Part 2 is the UI. */
 "use strict";
 
-const CREDITS = "Based on Loon and Ally's workflow audit."; // names get added here, rendered into every [data-credits] slot
+const CREDITS = [ // names get added here; set url to link a name
+  { name: "Loon", url: "https://www.linkedin.com/in/chinloonseng/" },
+  { name: "Ally", url: "https://www.linkedin.com/in/allyyeo/" },
+  { name: "Valerie", url: null }
+];
 
 var LENSES = {
   digital: "Moving files and app switching",
@@ -447,7 +451,14 @@ var SAMPLE = {
 /* ---------- Part 2: UI (browser only) ---------- */
 if (typeof document !== "undefined") (function () {
   var KEY = "workflow-audit-results", TEAM_KEY = "workflow-audit-team", PREV_KEY = "workflow-audit-previous";
-  Array.prototype.forEach.call(document.querySelectorAll("[data-credits]"), function (e) { e.textContent = CREDITS; });
+  // credits line, built with DOM methods: "Workflow audit by Loon, Ally and Valerie."
+  Array.prototype.forEach.call(document.querySelectorAll("[data-credits]"), function (e) {
+    e.textContent = "Workflow audit by ";
+    CREDITS.forEach(function (c, i) {
+      e.append(c.url ? h("a", { href: c.url, target: "_blank", rel: "noopener", text: c.name }) : c.name);
+      e.append(i < CREDITS.length - 2 ? ", " : i === CREDITS.length - 2 ? " and " : ".");
+    });
+  });
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
   // Safe element builder: values go in via textContent / text nodes, never innerHTML.

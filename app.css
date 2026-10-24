@@ -219,3 +219,10 @@ textarea#paste{width:100%;min-height:150px;resize:vertical;border:1px solid var(
 .key i.ln{width:18px;height:0;border-top:2px solid var(--accent);border-radius:0;background:none!important;vertical-align:middle}
 .key i.ln.dash{border-top:2px dashed var(--ink3)}
 .rm-note{margin:12px 0 0;font-size:12px;color:var(--ink3)}
+
+.why{margin:0 0 16px;padding:14px 16px;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:var(--r);background:var(--card)}
+.why h2{margin:0 0 4px;font-size:13px;font-weight:600}
+.why p{margin:0;color:var(--ink2)}
+[data-credits] a{color:var(--accent-ink);text-decoration:none}
+[data-credits] a:hover{text-decoration:underline}
+footer .btn:not(.pri){color:var(--ink)}
