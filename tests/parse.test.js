@@ -10,8 +10,8 @@ const obj = JSON.parse(sample);
 // raw JSON
 let r = parseResults(sample);
 assert.ok(r.ok, "raw JSON parses");
-assert.strictEqual(r.data.workflow, "Travel vlog edit");
-assert.strictEqual(r.data.cycle_hours_before, 6);
+assert.strictEqual(r.data.workflow, "KYC periodic review");
+assert.strictEqual(r.data.cycle_hours_before, null);
 
 // fenced, with chat text and stray braces around it
 r = parseResults("Great, here are your results {not json}:\n```json\n" + sample + "\n```\nHope that helps! {bye}");

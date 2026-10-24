@@ -1,33 +1,161 @@
 {
   "version": "1",
   "name": "",
-  "department": "Content Production",
-  "role": "Founder and travel content creator",
-  "workflow": "Travel vlog edit",
-  "produces": "Raw trip footage to one posted vertical video",
-  "frequency_per_week": 2,
-  "cycle_hours": 4,
-  "cycle_hours_before": 6,
+  "department": "Compliance, Retail Banking",
+  "role": "KYC analyst",
+  "workflow": "KYC periodic review",
+  "produces": "Approved customer risk reviews with an audit trail",
+  "frequency_per_week": 5,
+  "cycle_hours": 2.5,
+  "cycle_hours_before": null,
   "workload": "amber",
-  "friction": {"digital": 1, "cognitive": 2, "technical": 2, "strategic": 0, "linguistic": 2, "physical": 1},
+  "friction": {
+    "digital": 3,
+    "cognitive": 3,
+    "technical": 2,
+    "strategic": 1,
+    "linguistic": 1,
+    "physical": 0
+  },
   "steps": [
-    {"id": "1", "name": "Export clips", "friction": "high", "lens": "digital", "note": "Hunting for the right clips across a long trip, every time"},
-    {"id": "2", "name": "Script in my voice", "friction": "high", "lens": "linguistic", "note": "Wrong hook and wrong angle, every single script"},
-    {"id": "3", "name": "Record voiceover", "friction": "high", "lens": "physical", "note": "Retakes, finding a quiet spot, recording two languages"},
-    {"id": "4", "name": "Cut, finish and colour check", "friction": "high", "lens": "technical", "note": "Colour drifts after export, so I re-export and eyeball it"},
-    {"id": "5", "name": "Music and second export", "friction": "high", "lens": "strategic", "note": "Music only goes in after the check, so I export twice"},
-    {"id": "6", "name": "Covers and captions", "friction": "high", "lens": "cognitive", "note": "Eye-catching titles and two languages, every video"},
-    {"id": "7", "name": "Post and log", "friction": "low", "lens": "digital", "note": "Not too annoying"}
+    {
+      "id": "1",
+      "name": "Pull the review list",
+      "friction": "medium",
+      "lens": "technical",
+      "note": "Export from the core system, then clean the file in Excel before I can use it"
+    },
+    {
+      "id": "2",
+      "name": "Gather customer documents",
+      "friction": "high",
+      "lens": "digital",
+      "note": "Documents sit in three systems, so I search each one for every customer"
+    },
+    {
+      "id": "3",
+      "name": "Run name screening",
+      "friction": "high",
+      "lens": "cognitive",
+      "note": "Most screening hits are false matches, but each one needs a written reason"
+    },
+    {
+      "id": "4",
+      "name": "Check against the policy checklist",
+      "friction": "high",
+      "lens": "cognitive",
+      "note": "Checklist changes after policy updates and I double check every item to be safe"
+    },
+    {
+      "id": "5",
+      "name": "Write the review memo",
+      "friction": "medium",
+      "lens": "linguistic",
+      "note": "Same structure every time but I type it from scratch"
+    },
+    {
+      "id": "6",
+      "name": "Send for checker approval",
+      "friction": "high",
+      "lens": "strategic",
+      "note": "Approvals sit in email for days and I chase them manually"
+    },
+    {
+      "id": "7",
+      "name": "Update records and tracker",
+      "friction": "medium",
+      "lens": "digital",
+      "note": "Same details typed into the system and a side tracker"
+    }
   ],
-  "workarounds": ["Rewatch for caption errors", "Rewatch for colour", "Volume check by ear", "Log the same post in several places", "Ask a friend which hook is better", "Fix cuts by hand", "Compare exported colour against the originals"],
+  "workarounds": [
+    "Personal Excel tracker of reviews in progress",
+    "Saved email templates for chasing approvals",
+    "Printing the checklist and ticking by hand",
+    "Asking a senior colleague about unclear policy points",
+    "Keeping my own notes on common false screening matches"
+  ],
   "fixes": [
-    {"type": "quick_win", "title": "Brief the angle before the script", "steps": ["2"], "lens": "linguistic", "min_low": 15, "min_high": 30, "risk": "low", "what": "Give the AI three lines first: the angle, the hook, and the must-say facts. Add three past scripts as voice examples.", "catch": "It can still invent prices or places. Check every number before recording."},
-    {"type": "quick_win", "title": "Export once, not twice", "steps": ["4", "5"], "lens": "strategic", "min_low": 10, "min_high": 20, "risk": "low", "what": "Add filters and music in the same pass, export once, then check colour and volume on that final file.", "catch": "If the music changes after the check, you are back to two exports."},
-    {"type": "quick_win", "title": "One pass for covers and captions", "steps": ["6"], "lens": "cognitive", "min_low": 20, "min_high": 30, "risk": "low", "what": "Ask the AI once for cover titles, frame suggestions, captions and hashtags in both languages.", "catch": "Keep your own final read of anything platform-sensitive."},
-    {"type": "bigger_change", "title": "Fix colour drift at the source", "steps": ["4"], "lens": "technical", "min_low": 15, "min_high": 30, "risk": "medium", "what": "Test one clip shot with HDR off, lock one export preset, and compare colour readings instead of eyeballing.", "catch": "HDR is a likely cause, not a confirmed one. Run both checks on three videos first."},
-    {"type": "bigger_change", "title": "Batch your voiceovers", "steps": ["3"], "lens": "physical", "min_low": 20, "min_high": 40, "risk": "medium", "what": "Record two to three scripts in one quiet, high-energy session.", "catch": "Needs scripts ready ahead of time."},
-    {"type": "bigger_change", "title": "Plan per trip, not per video", "steps": ["1"], "lens": "cognitive", "min_low": 15, "min_high": 30, "risk": "low", "what": "Turn each trip's footage into five to eight video ideas with angle, hook and clip list, scheduled in one sitting.", "catch": "Ideas are only as good as the clip labels. Watch the clips for your top two ideas first."}
+    {
+      "type": "quick_win",
+      "title": "Memo template with fixed sections",
+      "steps": [
+        "5"
+      ],
+      "lens": "linguistic",
+      "min_low": 10,
+      "min_high": 15,
+      "risk": "low",
+      "what": "Build one Word template with the standard memo sections, and use Copilot to draft the wording from your checklist notes, with no customer names or IDs pasted in.",
+      "catch": "Never paste customer data into AI unless your bank has approved it. Review every sentence before filing."
+    },
+    {
+      "type": "quick_win",
+      "title": "Excel cleanup in one click",
+      "steps": [
+        "1"
+      ],
+      "lens": "technical",
+      "min_low": 5,
+      "min_high": 10,
+      "risk": "low",
+      "what": "Record the cleanup steps once as a saved Power Query, so each new export is cleaned automatically.",
+      "catch": "Check the row count matches the original export each time."
+    },
+    {
+      "type": "quick_win",
+      "title": "Reason codes for false screening matches",
+      "steps": [
+        "3"
+      ],
+      "lens": "cognitive",
+      "min_low": 10,
+      "min_high": 15,
+      "risk": "medium",
+      "what": "Agree a short list of standard reasons for common false matches with your team lead, and pick from it instead of writing each one fresh.",
+      "catch": "Reason codes need compliance sign-off before use. Unusual hits still need a full written reason."
+    },
+    {
+      "type": "bigger_change",
+      "title": "Approval queue in Teams",
+      "steps": [
+        "6"
+      ],
+      "lens": "strategic",
+      "min_low": 5,
+      "min_high": 15,
+      "risk": "medium",
+      "what": "Move checker approvals from email into a shared approval flow, such as Teams Approvals, so pending items and their age are visible to everyone.",
+      "catch": "The audit trail must still meet policy. Confirm with compliance and IT before switching."
+    },
+    {
+      "type": "bigger_change",
+      "title": "One document checklist per customer type",
+      "steps": [
+        "2",
+        "4"
+      ],
+      "lens": "cognitive",
+      "min_low": 10,
+      "min_high": 20,
+      "risk": "low",
+      "what": "Turn the policy checklist into one short checklist per customer type, listing which system holds each document.",
+      "catch": "Owner must update it on every policy change, or it becomes a risk instead of a help."
+    },
+    {
+      "type": "bigger_change",
+      "title": "Single source for review status",
+      "steps": [
+        "7"
+      ],
+      "lens": "digital",
+      "min_low": 5,
+      "min_high": 10,
+      "risk": "medium",
+      "what": "Retire the personal tracker by using one shared team list as the only place review status is updated.",
+      "catch": "Needs the team to agree to update it every time, or status drifts again."
+    }
   ],
-  "need": "Editing keeps eating 4 full hours or more per one minute video, and I can't post more often.",
-  "fear": "AI edits that look generic, or colour and caption mistakes slipping through."
+  "need": "Reviews keep piling up at month end and I worry about missing deadlines the regulator expects.",
+  "fear": "A shortcut that saves time but fails an audit, or customer data ending up somewhere it should not be."
 }

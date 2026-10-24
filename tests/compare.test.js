@@ -6,29 +6,31 @@ const sample = validate(JSON.parse(require("fs").readFileSync(require("path").jo
 const prev = makePreviousSample();
 const c = compareResults(prev, sample);
 
-// KPI deltas: 6 h -> 4 h per cycle, friction up on 3 lenses before, workload red -> amber
-assert.strictEqual(c.cycle.prev, 6);
-assert.strictEqual(c.cycle.now, 4);
-assert.strictEqual(c.cycle.delta, -2);
-assert.strictEqual(c.friction.digital.delta, -1);
-assert.strictEqual(c.friction.cognitive.delta, -1);
+// KPI deltas: 3.5 h -> 2.5 h per cycle, friction higher on 3 lenses before, workload red -> amber
+assert.strictEqual(c.cycle.prev, 3.5);
+assert.strictEqual(c.cycle.now, 2.5);
+assert.strictEqual(c.cycle.delta, -1);
 assert.strictEqual(c.friction.technical.delta, -1);
-assert.strictEqual(c.friction.linguistic.delta, 0);
+assert.strictEqual(c.friction.strategic.delta, -1);
+assert.strictEqual(c.friction.linguistic.delta, -1);
+assert.strictEqual(c.friction.digital.delta, 0);
 assert.strictEqual(c.workload.change, "better");
-assert.strictEqual(c.painful.now, 6);
-assert.strictEqual(c.painful.prev, 5); // prev highs: steps 1, 4, 5, 6 and the removed step 8
+assert.strictEqual(c.painful.now, 4);
+assert.strictEqual(c.painful.prev, 6); // prev highs: steps 1, 2, 3, 4, 7 and the removed step 8
 assert.ok(c.savable.now.hi > 0);
+assert.ok(c.savable.deltaHigh < 0, "bigger savings were on the table before");
 
 // step matching
 const by = (n) => c.steps.find((s) => s.name === n);
-assert.strictEqual(by("Script in my voice").status, "worse"); // was medium, now high
-assert.strictEqual(by("Post and log").status, "calmer"); // was medium, now low
-assert.strictEqual(by("Export clips").status, "same");
-assert.strictEqual(by("Record voiceover").status, "new");
-assert.deepStrictEqual(c.removed.map((s) => s.name), ["Manual cover resize"]);
+assert.strictEqual(by("Write the review memo").status, "worse"); // was low, now medium
+assert.strictEqual(by("Pull the review list").status, "calmer"); // was high, now medium
+assert.strictEqual(by("Update records and tracker").status, "calmer");
+assert.strictEqual(by("Run name screening").status, "same");
+assert.strictEqual(by("Send for checker approval").status, "new");
+assert.deepStrictEqual(c.removed.map((s) => s.name), ["Print and file paper copies"]);
 
 // name matching ignores case and spaces
-const p2 = JSON.parse(JSON.stringify(sample)); p2.steps[0].name = "  EXPORT   clips "; p2.steps[0].friction = "low";
+const p2 = JSON.parse(JSON.stringify(sample)); p2.steps[0].name = "  PULL   the review LIST "; p2.steps[0].friction = "low";
 assert.strictEqual(compareResults(p2, sample).steps[0].status, "worse");
 
 // workflow mismatch detection
