@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Workflow audit</title>
+<meta name="description" content="Find the hidden hours in your work. A free workflow audit that runs entirely in your browser.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="prompt.js"></script>
+</head>
+<body>
+
+<div id="landing" class="land hidden">
+  <div class="land-top">
+    <div class="brand"><i></i>Workflow audit</div>
+    <button class="btn" type="button" data-act="theme">Dark mode</button>
+  </div>
+  <h1>Find the hidden hours in your work</h1>
+  <p class="lede">Answer a short AI interview about one workflow, then get a personal dashboard of where your time goes and what to fix first.</p>
+
+  <ol class="how">
+    <li>
+      <span class="n">1</span>
+      <div>
+        <h2>Copy the prompt</h2>
+        <p>This is the interview script for the AI.</p>
+        <div class="row-actions"><button class="btn pri big" type="button" id="copy">Copy prompt</button></div>
+      </div>
+    </li>
+    <li>
+      <span class="n">2</span>
+      <div>
+        <h2>Paste it into your company's AI and answer the questions</h2>
+        <p>Works with Microsoft Copilot or Google Gemini. It takes about 20 minutes. Pick one workflow you do often.</p>
+        <p class="aside">Use the AI tool your company allows.</p>
+      </div>
+    </li>
+    <li>
+      <span class="n">3</span>
+      <div>
+        <h2>Paste the results the AI gives you</h2>
+        <p>At the end the AI shows your results in a box. Click the box's Copy button and paste it here.</p>
+        <label for="paste" class="hidden">Results from the AI</label>
+        <textarea id="paste" spellcheck="false" placeholder="Paste the results here"></textarea>
+        <p class="err hidden" id="err" role="alert"></p>
+        <div class="row-actions">
+          <button class="btn pri big" type="button" id="go">See my dashboard</button>
+          <button class="lnk" type="button" id="example">See an example</button>
+        </div>
+      </div>
+    </li>
+  </ol>
+
+  <p class="fine">Your answers never leave your device. This site has no database and sends nothing anywhere.</p>
+  <footer><span data-credits></span></footer>
+</div>
+
+<div id="dash" class="app hidden">
+  <aside>
+    <div class="brand"><i></i>Workflow audit</div>
+    <div class="who" id="who"></div>
+    <nav id="nav"></nav>
+    <div class="side-links">
+      <a href="#/" id="new-audit">New audit</a>
+      <a href="#/team">Team view</a>
+    </div>
+    <div class="side-actions">
+      <button class="btn" type="button" data-act="theme">Dark mode</button>
+      <button class="btn pri" type="button" data-act="dl">Download results for your manager (.json)</button>
+      <p class="helper">Send this file to your manager for the Team view. The PDF is for reading only. Keep this file. Next time, use Compare with a previous result to see your progress.</p>
+      <button class="btn" type="button" data-act="compare">Compare with a previous result</button>
+      <button class="btn" type="button" data-act="pdf">Save as PDF</button>
+    </div>
+  </aside>
+  <main>
+    <header class="top" id="top"></header>
+    <div id="cmp-panel" class="hidden"></div>
+    <div id="cmp-banner"></div>
+    <div class="grid" id="grid"></div>
+    <footer>
+      <span>Your answers never leave your device. Self-reported results, not for HR decisions. <span data-credits></span></span>
+      <div class="acts">
+        <a class="btn" href="#/">New audit</a>
+        <button class="btn pri" type="button" data-act="dl">Download results for your manager (.json)</button>
+        <button class="btn" type="button" data-act="compare">Compare with a previous result</button>
+        <button class="btn" type="button" data-act="pdf">Save as PDF</button>
+      </div>
+      <p class="helper">Send this file to your manager for the Team view. The PDF is for reading only. Keep this file. Next time, use Compare with a previous result to see your progress.</p>
+    </footer>
+  </main>
+</div>
+
+<div id="team" class="app hidden">
+  <aside>
+    <div class="brand"><i></i>Workflow audit</div>
+    <div class="who" id="t-who"></div>
+    <nav id="t-nav"></nav>
+    <div class="side-links">
+      <a href="#/">New audit</a>
+    </div>
+    <div class="side-actions">
+      <button class="btn" type="button" data-act="theme">Dark mode</button>
+      <button class="btn pri" type="button" data-act="pdf">Save as PDF</button>
+    </div>
+  </aside>
+  <main>
+    <header class="top" id="t-top"></header>
+    <div class="grid" id="t-grid"></div>
+    <footer>
+      <span>Combined from files on this device only. Self-reported results, not for HR decisions. <span data-credits></span></span>
+      <div class="acts">
+        <a class="btn" href="#/">New audit</a>
+        <button class="btn pri" type="button" data-act="pdf">Save as PDF</button>
+      </div>
+    </footer>
+  </main>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

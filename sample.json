@@ -1,0 +1,33 @@
+{
+  "version": "1",
+  "name": "",
+  "department": "Content Production",
+  "role": "Founder and travel content creator",
+  "workflow": "Travel vlog edit",
+  "produces": "Raw trip footage to one posted vertical video",
+  "frequency_per_week": 2,
+  "cycle_hours": 4,
+  "cycle_hours_before": 6,
+  "workload": "amber",
+  "friction": {"digital": 1, "cognitive": 2, "technical": 2, "strategic": 0, "linguistic": 2, "physical": 1},
+  "steps": [
+    {"id": "1", "name": "Export clips", "friction": "high", "lens": "digital", "note": "Hunting for the right clips across a long trip, every time"},
+    {"id": "2", "name": "Script in my voice", "friction": "high", "lens": "linguistic", "note": "Wrong hook and wrong angle, every single script"},
+    {"id": "3", "name": "Record voiceover", "friction": "high", "lens": "physical", "note": "Retakes, finding a quiet spot, recording two languages"},
+    {"id": "4", "name": "Cut, finish and colour check", "friction": "high", "lens": "technical", "note": "Colour drifts after export, so I re-export and eyeball it"},
+    {"id": "5", "name": "Music and second export", "friction": "high", "lens": "strategic", "note": "Music only goes in after the check, so I export twice"},
+    {"id": "6", "name": "Covers and captions", "friction": "high", "lens": "cognitive", "note": "Eye-catching titles and two languages, every video"},
+    {"id": "7", "name": "Post and log", "friction": "low", "lens": "digital", "note": "Not too annoying"}
+  ],
+  "workarounds": ["Rewatch for caption errors", "Rewatch for colour", "Volume check by ear", "Log the same post in several places", "Ask a friend which hook is better", "Fix cuts by hand", "Compare exported colour against the originals"],
+  "fixes": [
+    {"type": "quick_win", "title": "Brief the angle before the script", "steps": ["2"], "lens": "linguistic", "min_low": 15, "min_high": 30, "risk": "low", "what": "Give the AI three lines first: the angle, the hook, and the must-say facts. Add three past scripts as voice examples.", "catch": "It can still invent prices or places. Check every number before recording."},
+    {"type": "quick_win", "title": "Export once, not twice", "steps": ["4", "5"], "lens": "strategic", "min_low": 10, "min_high": 20, "risk": "low", "what": "Add filters and music in the same pass, export once, then check colour and volume on that final file.", "catch": "If the music changes after the check, you are back to two exports."},
+    {"type": "quick_win", "title": "One pass for covers and captions", "steps": ["6"], "lens": "cognitive", "min_low": 20, "min_high": 30, "risk": "low", "what": "Ask the AI once for cover titles, frame suggestions, captions and hashtags in both languages.", "catch": "Keep your own final read of anything platform-sensitive."},
+    {"type": "bigger_change", "title": "Fix colour drift at the source", "steps": ["4"], "lens": "technical", "min_low": 15, "min_high": 30, "risk": "medium", "what": "Test one clip shot with HDR off, lock one export preset, and compare colour readings instead of eyeballing.", "catch": "HDR is a likely cause, not a confirmed one. Run both checks on three videos first."},
+    {"type": "bigger_change", "title": "Batch your voiceovers", "steps": ["3"], "lens": "physical", "min_low": 20, "min_high": 40, "risk": "medium", "what": "Record two to three scripts in one quiet, high-energy session.", "catch": "Needs scripts ready ahead of time."},
+    {"type": "bigger_change", "title": "Plan per trip, not per video", "steps": ["1"], "lens": "cognitive", "min_low": 15, "min_high": 30, "risk": "low", "what": "Turn each trip's footage into five to eight video ideas with angle, hook and clip list, scheduled in one sitting.", "catch": "Ideas are only as good as the clip labels. Watch the clips for your top two ideas first."}
+  ],
+  "need": "Editing keeps eating 4 full hours or more per one minute video, and I can't post more often.",
+  "fear": "AI edits that look generic, or colour and caption mistakes slipping through."
+}
