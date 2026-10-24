@@ -2,6 +2,8 @@
    Part 1 is pure (parse + validate) and also runs in Node for tests. Part 2 is the UI. */
 "use strict";
 
+const SIGNUP_URL = ""; // Google Apps Script web app URL (see scripts/README.md). Empty = email gate and its privacy wording stay off.
+
 const CREDITS = [ // names get added here; set url to link a name
   { name: "Loon", url: "https://www.linkedin.com/in/chinloonseng/" },
   { name: "Ally", url: "https://www.linkedin.com/in/allyyeo/" },
@@ -191,6 +193,15 @@ function makePreviousSample() {
   return validate(p).data;
 }
 
+/* ---------- Email gate helpers (pure) ---------- */
+function gateEnabled(url) { return typeof url === "string" && url.trim() !== ""; }
+function isEmail(x) { x = String(x == null ? "" : x).trim(); return x.length <= 200 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(x); }
+// the ONLY thing ever sent: never add audit results here
+function buildSignup(email, name, company) {
+  var c = function (v) { return String(v == null ? "" : v).trim().slice(0, 200); };
+  return { email: c(email), name: c(name), company: c(company), consent: true, source: "download" };
+}
+
 /* ---------- Team: add files + aggregate (pure, also used in Node tests) ---------- */
 
 // text of one file -> { status: "added" | "duplicate" | "error", list, error? }. Same validator as the individual flow.
@@ -283,7 +294,7 @@ var EXAMPLE_TEAM = [
     "Requests that arrive complete.", "Approving something over budget by mistake.")
 ];
 
-if (typeof module !== "undefined" && module.exports) module.exports = { parseResults: parseResults, validate: validate, slug: slug, LENSES: LENSES, LENS_KEYS: LENS_KEYS, addResult: addResult, aggregateTeam: aggregateTeam, EXAMPLE_TEAM: EXAMPLE_TEAM, CREDITS: CREDITS, compareResults: compareResults, sameWorkflow: sameWorkflow, makePreviousSample: makePreviousSample };
+if (typeof module !== "undefined" && module.exports) module.exports = { parseResults: parseResults, validate: validate, slug: slug, LENSES: LENSES, LENS_KEYS: LENS_KEYS, addResult: addResult, aggregateTeam: aggregateTeam, EXAMPLE_TEAM: EXAMPLE_TEAM, CREDITS: CREDITS, compareResults: compareResults, sameWorkflow: sameWorkflow, makePreviousSample: makePreviousSample, gateEnabled: gateEnabled, isEmail: isEmail, buildSignup: buildSignup, SIGNUP_URL: SIGNUP_URL };
 
 /* Example data, embedded so it works on file:// */
 var SAMPLE = {
@@ -970,11 +981,87 @@ if (typeof document !== "undefined") (function () {
     });
   }
 
+
+  /* ----- email gate on download (off until SIGNUP_URL is set) ----- */
+  function signedUp() { return safe(function () { return localStorage.getItem("wa_signup_done") === "1"; }); }
+  function requestDownload() { if (!gateEnabled(SIGNUP_URL) || signedUp()) download(); else openGate(); }
+
+  function sendSignup(payload) { // best effort: never wait more than 3 s
+    var t, timeout = new Promise(function (res) { t = setTimeout(function () { res(false); }, 3000); }), req;
+    try {
+      req = fetch(SIGNUP_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload) })
+        .then(function () { return true; }, function () { return false; });
+    } catch (e) { req = Promise.resolve(false); }
+    return Promise.race([req, timeout]).then(function (ok) { clearTimeout(t); return ok; });
+  }
+
+  function openGate() {
+    var back = document.activeElement;
+    function field(id, label, type, auto, extra) {
+      var input = h("input", Object.assign({ id: id, type: type, autocomplete: auto }, extra || {}));
+      return { input: input, node: h("div", { class: "field" }, [h("label", { for: id, text: label }), input, h("p", { class: "field-err", id: id + "-err", role: "alert" })]) };
+    }
+    var fe = field("g-email", "Email (required)", "email", "email", { "aria-describedby": "g-email-err" });
+    var fn = field("g-name", "Name (optional)", "text", "name");
+    var fc = field("g-company", "Company (optional)", "text", "organization");
+    var consent = h("input", { type: "checkbox", id: "g-consent", "aria-describedby": "g-consent-err" });
+    var consentErr = h("p", { class: "field-err", id: "g-consent-err", role: "alert" });
+    var emailErr = $("#g-email-err", fe.node);
+    var go = h("button", { type: "submit", class: "btn pri", text: "Download" });
+    var cancel = h("button", { type: "button", class: "btn", text: "Cancel" });
+    var form = h("form", { novalidate: "" }, [
+      h("h2", { id: "g-title", text: "Download your results" }),
+      h("p", { class: "sub", text: "Enter your email to get the file. Your audit results are never sent anywhere." }),
+      fe.node, fn.node, fc.node,
+      h("label", { class: "consent", for: "g-consent" }, [consent, h("span", { text: "I agree to be contacted by Loon, Ally and Valerie about workshops and training. I can ask to be removed anytime at heyvalerielim@gmail.com." })]),
+      consentErr,
+      h("div", { class: "row-actions" }, [go, cancel])]);
+    var dlg = h("dialog", { class: "gate", "aria-labelledby": "g-title" }, [form]);
+    document.body.append(dlg);
+    function closeGate() { if (dlg.open) dlg.close(); if (dlg.isConnected) { dlg.remove(); if (back && back.focus) back.focus(); } }
+    cancel.onclick = closeGate;
+    dlg.addEventListener("close", closeGate); // Esc closes the dialog natively and lands here
+    form.onsubmit = function (e) {
+      e.preventDefault();
+      var okE = isEmail(fe.input.value), okC = consent.checked;
+      emailErr.textContent = okE ? "" : "Enter a valid email";
+      consentErr.textContent = okC ? "" : "Tick the box to continue";
+      fe.input.setAttribute("aria-invalid", String(!okE)); consent.setAttribute("aria-invalid", String(!okC));
+      if (!okE || !okC) { (okE ? consent : fe.input).focus(); return; }
+      go.disabled = cancel.disabled = true; go.textContent = "Downloading";
+      sendSignup(buildSignup(fe.input.value, fn.input.value, fc.input.value)).then(function (sent) {
+        if (sent) safe(function () { localStorage.setItem("wa_signup_done", "1"); });
+        closeGate(); download();
+      });
+    };
+    dlg.showModal(); fe.input.focus();
+  }
+
+  // new privacy wording + expandable notice, only when the gate is on
+  if (gateEnabled(SIGNUP_URL)) {
+    var NOTICE = [["What we collect", "your email, and your name and company if you give them, when you download your results."],
+      ["Why", "to contact you about workshops and training from Loon, Ally and Valerie."],
+      ["What we never collect", "your audit answers or results; they stay on your device."],
+      ["How long", "until you ask us to remove it."],
+      ["To be removed or to see what we hold", "email heyvalerielim@gmail.com."]];
+    var addPrivacy = function (host, text) {
+      var line = $(host); line.textContent = text + " ";
+      var box = h("div", { class: "privacy-notice hidden", id: host.slice(1) + "-notice" }, NOTICE.map(function (n) { return h("p", {}, [h("b", { text: n[0] + ": " }), n[1]]); }));
+      var btn = h("button", { type: "button", class: "lnk", text: "Privacy", "aria-expanded": "false", "aria-controls": box.id,
+        onclick: function () { var open = box.classList.toggle("hidden") === false; btn.setAttribute("aria-expanded", String(open)); } });
+      line.append(btn);
+      var anchor = line.parentNode.tagName === "SPAN" ? line.parentNode : line; // footer: sit after the whole footer text
+      anchor.parentNode.insertBefore(box, anchor.nextSibling);
+    };
+    addPrivacy("#privacy-landing", "Your audit results never leave your device. When you download them, we ask for your email. That's the only thing we save, and only to contact you about workshops and training.");
+    addPrivacy("#privacy-dash", "Your audit results never leave your device. Self-reported results, not for HR decisions.");
+  }
+
   /* ----- wiring ----- */
   document.addEventListener("click", function (e) {
     var b = e.target.closest("[data-act]"); if (!b) return;
     var act = b.dataset.act;
-    if (act === "dl" && R) download(); else if (act === "compare" && R) openCmpPanel(); else if (act === "pdf") window.print(); else if (act === "theme") toggleTheme();
+    if (act === "dl" && R) requestDownload(); else if (act === "compare" && R) openCmpPanel(); else if (act === "pdf") window.print(); else if (act === "theme") toggleTheme();
   });
   var wasOpen = [];
   window.addEventListener("beforeprint", function () {

@@ -226,3 +226,25 @@ textarea#paste{width:100%;min-height:150px;resize:vertical;border:1px solid var(
 [data-credits] a{color:var(--accent-ink);text-decoration:none}
 [data-credits] a:hover{text-decoration:underline}
 footer .btn:not(.pri){color:var(--ink)}
+
+/* email gate + privacy notice */
+.gate{border:1px solid var(--line);border-radius:var(--r);background:var(--card);color:var(--ink);padding:22px;width:calc(100% - 32px);max-width:440px;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.gate::backdrop{background:rgba(10,12,16,.55)}
+.gate h2{margin:0 0 4px;font-size:18px;font-weight:600}
+.gate .sub{margin:0 0 16px}
+.field{margin-bottom:12px}
+.field label{display:block;font-weight:500;margin-bottom:4px}
+.field input[type=email],.field input[type=text]{width:100%;border:1px solid var(--line);border-radius:9px;padding:9px 11px;background:var(--canvas);color:var(--ink);font:inherit}
+.field input[aria-invalid=true],.consent input[aria-invalid=true]{outline:2px solid var(--red);outline-offset:1px}
+.field input:focus-visible,.consent input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.field-err{margin:4px 0 0;min-height:0;color:var(--red);font-size:12px;font-weight:500}
+.field-err:empty{display:none}
+.consent{display:flex;gap:10px;align-items:flex-start;color:var(--ink2);font-size:13px;margin:4px 0 8px}
+.consent input{width:16px;height:16px;margin-top:2px;flex:none;accent-color:var(--accent)}
+.gate .row-actions{margin-top:14px}
+.privacy-notice{margin:10px 0 0;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink2);font-size:13px;max-width:640px}
+.privacy-notice p{margin:0 0 6px}.privacy-notice p:last-child{margin:0}.privacy-notice b{color:var(--ink)}
+footer .lnk{font-size:12px}
+@media print{.gate,.privacy-notice{display:none!important}}
+footer .privacy-notice{flex-basis:100%;max-width:none}
+#privacy-dash .lnk{margin:0 12px 0 2px}
