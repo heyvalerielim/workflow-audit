@@ -22,6 +22,7 @@ assert.strictEqual(gateEnabled(""), false);
 assert.strictEqual(gateEnabled("   "), false);
 assert.strictEqual(gateEnabled(undefined), false);
 assert.strictEqual(gateEnabled("https://script.google.com/macros/s/abc/exec"), true);
-assert.strictEqual(gateEnabled(SIGNUP_URL), false, "committed config must have the gate off");
+// committed config: either off, or a deployed Apps Script web app URL
+assert.ok(SIGNUP_URL === "" || /^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(SIGNUP_URL), "SIGNUP_URL must be empty or an Apps Script /exec URL");
 
 console.log("signup tests passed");

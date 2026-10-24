@@ -2,7 +2,7 @@
    Part 1 is pure (parse + validate) and also runs in Node for tests. Part 2 is the UI. */
 "use strict";
 
-const SIGNUP_URL = ""; // Google Apps Script web app URL (see scripts/README.md). Empty = email gate and its privacy wording stay off.
+const SIGNUP_URL = "https://script.google.com/macros/s/AKfycbxsA3uSA1JzQUfiqW9YWutjEtaWPtUQTJyyVPVeS4TZMs-zCLXk8RLUgpW_3a7Qrnulxw/exec"; // Google Apps Script web app URL (see scripts/README.md). Empty = email gate and its privacy wording stay off.
 
 const CREDITS = [ // names get added here; set url to link a name
   { name: "Loon", url: "https://www.linkedin.com/in/chinloonseng/" },
